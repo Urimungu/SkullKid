@@ -5,9 +5,12 @@ using UnityEngine;
 public class GunController : MonoBehaviour {
 
     //References
+    [Header("References")]
     public Transform Target;
     public Sprite Gun, GunShoot;
     public float ReloadSpeed = 0.4f;
+
+    private GameObject _shotHolder;
 
     //Variables
     private const float HeightOffset = 0.4f;
@@ -18,16 +21,17 @@ public class GunController : MonoBehaviour {
     private float _timer;
     private Vector2 _center;
     private SpriteRenderer _spriteRenderer;
+    private GameObject _bullet;
 
     private void Awake() {
         _spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        _bullet = Resources.Load<GameObject>("Projectiles/Bullet");
     }
 
     private void Update() {
         FollowTarget(Target);
 
-        if (!_isRunning && Time.time > _timer && Input.GetKeyDown(KeyCode.Mouse0))
-        {
+        if (!_isRunning && Time.time > _timer && Input.GetKeyDown(KeyCode.Mouse0)){
             _timer = Time.time + ReloadSpeed;
             _isRunning = true;
             StartCoroutine(Shoot());
@@ -36,10 +40,24 @@ public class GunController : MonoBehaviour {
 
     IEnumerator Shoot()
     {
+        SpawnBullet();
         _spriteRenderer.sprite = GunShoot;
         yield return new WaitForSeconds(0.1f);
         _spriteRenderer.sprite = Gun;
         _isRunning = false;
+    }
+
+    //Spawns the Bullet in
+    private void SpawnBullet() {
+        //Spawns in a shot holder if one doesn't exist
+        if(_shotHolder == null) {
+            _shotHolder = new GameObject();
+            _shotHolder.name = "ShotHolder";
+        }
+
+        //Spawns in the bullet
+        GameObject shot = Instantiate(_bullet, transform.GetChild(_spriteRenderer.flipY ? 2 : 1).position, transform.rotation, _shotHolder.transform);
+        shot.GetComponent<Bullet>().SpawnBullet(10, 10, 2, 0);
     }
 
     private void FollowTarget(Transform target) {
