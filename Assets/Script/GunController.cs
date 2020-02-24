@@ -10,13 +10,14 @@ public class GunController : MonoBehaviour {
     public Sprite Gun, GunShoot;
     public float ReloadSpeed = 0.4f;
 
+    public LayerMask Layers;
     private GameObject _shotHolder;
 
     //Variables
-    private const float HeightOffset = 0.4f;
+    private float HeightOffset = 0.4f;
     private const float Radius = 0.5f;
 
-    private bool _canMove;
+    private bool _canMove = true;
     private bool _isRunning;
     private float _timer;
     private Vector2 _center;
@@ -29,9 +30,12 @@ public class GunController : MonoBehaviour {
     }
 
     private void Update() {
-        FollowTarget(Target);
+        if(_canMove)
+            FollowTarget(Target);
 
-        if (!_isRunning && Time.time > _timer && Input.GetKeyDown(KeyCode.Mouse0)){
+        HeightOffset = Target.GetComponent<CircleCollider2D>() != null && Target.GetComponent<CircleCollider2D>().enabled ? 0.2f : 0.4f;
+
+        if (!_isRunning && Time.time > _timer && Input.GetKey(KeyCode.Mouse0)){
             _timer = Time.time + ReloadSpeed;
             _isRunning = true;
             StartCoroutine(Shoot());
@@ -65,7 +69,11 @@ public class GunController : MonoBehaviour {
         _center = (Vector2)target.position + (Vector2.up * HeightOffset);
         var camDistance = ((Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - _center).magnitude;
         var tempRadius = camDistance > Radius ? Radius : camDistance;
-        transform.position = _center + ((Vector2)transform.right * tempRadius);
+
+        //Moves the gun back if there is something in the way
+        Vector2 newDirection = ((Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - _center).normalized;
+        var hit = Physics2D.BoxCast(_center, new Vector2(0.12f, 0.12f), 0, newDirection, Radius + 0.3f, Layers);
+        transform.position = _center + ((Vector2)transform.right * (hit ? Mathf.Clamp(hit.distance - 0.2f, 0, 10) : tempRadius));
 
         //Flips the Sprite
         _spriteRenderer.flipY = Input.mousePosition.x < Camera.main.WorldToScreenPoint(_center).x;
