@@ -17,6 +17,9 @@ public class ProceduralGeneration : MonoBehaviour
     public int HallLengthMin;
     public int HallLengthMax;
 
+    public int HatchLengthMin;
+    public int HatchLengthMax;
+
     public int BoundsHorizontal;
     public int BoundsVertical;
 
@@ -39,7 +42,7 @@ public class ProceduralGeneration : MonoBehaviour
 
     //Variables
     public GameObject[,] GridSpace;
-
+    private int roomCount;
 
     //Builds Phase
     private void Awake() {
@@ -49,21 +52,19 @@ public class ProceduralGeneration : MonoBehaviour
 
     private void BuildLevel() {
 
-        int roomCount = Random.Range(RoomCountMin, RoomCountMax);
+        roomCount = Random.Range(RoomCountMin, RoomCountMax);
 
         //Runs for each room
-        for(int i = 0; i < roomCount; i++) {
-            //Creates Room
-            int width = Random.Range(RoomWidthMin + 2, RoomWidthMax + 2);
-            int height = Random.Range(RoomHeightMin + 2, RoomHeightMax + 2);
-            Vector2 startPos = GetPosition(StartLocation);
-            SpawnRoom(startPos, new Vector2(width, height), new Vector2(1, 1));
-        }
+        //Creates Room
+        int width = Random.Range(RoomWidthMin + 2, RoomWidthMax + 2);
+        int height = Random.Range(RoomHeightMin + 2, RoomHeightMax + 2);
+        Vector2 startPos = GetPosition(StartLocation);
+        SpawnRoom(startPos, new Vector2(width, height), new Vector2(1, 1));
     }
 
     //Creates the room
     private void SpawnRoom(Vector2 start, Vector2 dimensions, Vector2 direction) {
-        //Creates Room in the Heirarchy 
+        //Creates Room in the Hierarchy 
         GameObject roomParent = new GameObject();
         roomParent.transform.parent = DungeonHolder;
 
@@ -83,6 +84,78 @@ public class ProceduralGeneration : MonoBehaviour
                 }
             }
         }
+
+        roomCount--;
+
+        //Selects if there is adjacent rooms
+        List<int> directions = new List<int> {1, 2, 3, 4};
+        for (int i = 0; i < Random.Range(1, RoomConnectionsMax + 1); i++)
+        {
+
+            if (roomCount == 0)
+                break;
+
+            int tempRoom = Random.Range(0, directions.Count);
+            switch (directions[tempRoom]) {
+                //Left
+                case 1: HallWay(new Vector2(start.x,start.y + 1), -1, roomParent.transform); break;
+                //Top
+                case 2:
+                    break;
+                //Right
+                case 3: HallWay(new Vector2(start.x + (dimensions.x * direction.x), start.y + 1), 1, roomParent.transform); break;
+                //Bottom
+                case 4:
+                    break;
+
+            }
+            directions.Remove(directions[tempRoom]);
+        }
+    }
+
+    public void HallWay(Vector2 start, int pos, Transform parent) {
+
+        Vector2 dimensions = new Vector2(Random.Range(HallLengthMin, HallLengthMax),4);
+
+        for(int y = 0; y < dimensions.y; y++) {
+            for(int x = 0; x < dimensions.x; x++) {
+                //If its at an edge
+                if(x == 0 || x == dimensions.x - 1) {
+                    float posX = start.x + (x * pos);
+                    float posY = start.y + y;
+
+                    if(GridSpace[Mathf.FloorToInt(posX), Mathf.FloorToInt(posY)] != null)
+                        continue;
+
+                    GameObject block = Instantiate(GroundTile, parent);
+                    block.transform.position = new Vector2(posX * GridSize, posY * GridSize);
+                    GridSpace[Mathf.FloorToInt(posX), Mathf.FloorToInt(posY)] = block;
+                }
+            }
+        }
+    }
+
+    public void Hatch(Vector2 start, int pos, Transform parent) {
+
+        Vector2 dimensions = new Vector2(4, Random.Range(HatchLengthMin, HatchLengthMax));
+
+        for(int y = 0; y < dimensions.y; y++) {
+            for(int x = 0; x < dimensions.x; x++) {
+                //If its at an edge
+                if(y == 0 || y == dimensions.y - 1) {
+                    float posX = start.x + x;
+                    float posY = start.y + (y * pos);
+
+                    if(GridSpace[Mathf.FloorToInt(posX), Mathf.FloorToInt(posY)] != null)
+                        continue;
+
+                    GameObject block = Instantiate(GroundTile, parent);
+                    block.transform.position = new Vector2(posX * GridSize, posY * GridSize);
+                    GridSpace[Mathf.FloorToInt(posX), Mathf.FloorToInt(posY)] = block;
+                }
+            }
+        }
+
     }
 
     private Vector2 GetPosition(GridLocation gridLocation) {

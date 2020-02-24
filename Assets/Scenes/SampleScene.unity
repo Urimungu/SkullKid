@@ -764,9 +764,11 @@ MonoBehaviour:
   RoomCountMin: 5
   HallLengthMin: 3
   HallLengthMax: 10
+  HatchLengthMin: 3
+  HatchLengthMax: 5
   BoundsHorizontal: 100
   BoundsVertical: 100
-  StartLocation: 1
+  StartLocation: 4
   EndLocation: 7
   RoomConnectionsMax: 3
   GridSize: 0.5
