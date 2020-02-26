@@ -2,38 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerStats))]
 public class PlayerController : MonoBehaviour
 {
-    //Stats
-    [Header("Stats")]
-    public float Speed = 5;
-    public float CrouchSpeed = 2;
-    public float JumpForce = 5;
-    public float RayCastLength = 0.3f;
-    public float CeilingLength = 0.5f;
+    private PlayerStats _playerStats;
 
-    public LayerMask Layers;
-
-    //Variables
-    private bool _canMove = true;
-    private bool _grounded;
-    private bool _crouched;
-    private Rigidbody2D _rb2d;
-    private Animator _anim;
-
-    private void Awake(){
-        _rb2d = GetComponent<Rigidbody2D>();
-        _anim = transform.GetChild(0).GetComponent<Animator>();
+    private void Awake()
+    {
+        _playerStats = GetComponent<PlayerStats>();
+        _playerStats.Rb2d = GetComponent<Rigidbody2D>();
+        _playerStats.Anim = transform.GetChild(0).GetComponent<Animator>();
     }
 
     private void Update() {
-        if (_canMove) {
+        if (_playerStats.CanMove) {
             var horizontal = Input.GetAxisRaw("Horizontal");
             var vertical = Input.GetAxisRaw("Vertical");
             Movement(horizontal, vertical);
         }
 
-        _grounded = CheckIfGrounded();
+        _playerStats.Grounded = CheckIfGrounded();
         PlayAnimations();
     }
 
@@ -41,33 +29,33 @@ public class PlayerController : MonoBehaviour
 
         //Handles Crouching and adjusting speed
         Vector2 center = (Vector2)transform.position + new Vector2(0, (GetComponent<CircleCollider2D>().radius)) + GetComponent<CircleCollider2D>().offset;
-        bool checkTop = Physics2D.Raycast(center, Vector2.up, CeilingLength, Layers);
-        _crouched = ver < -0.1f && _grounded ? true : _grounded ? checkTop : false;
-        GetComponent<CircleCollider2D>().enabled = _crouched;
-        GetComponent<CapsuleCollider2D>().enabled = !_crouched;
+        bool checkTop = Physics2D.Raycast(center, Vector2.up, _playerStats.CeilingLength, _playerStats.Layers);
+        _playerStats.Crouched = ver < -0.1f && _playerStats.Grounded ? true : _playerStats.Grounded ? checkTop : false;
+        GetComponent<CircleCollider2D>().enabled = _playerStats.Crouched;
+        GetComponent<CapsuleCollider2D>().enabled = !_playerStats.Crouched;
 
 
         //Moves left and right
         transform.GetChild(0).GetComponent<SpriteRenderer>().flipX = Mathf.Abs(hor) > 0.1f ? hor < 0.1f : transform.GetChild(0).GetComponent<SpriteRenderer>().flipX;
-        _rb2d.velocity = new Vector2((_crouched ? CrouchSpeed : Speed) * hor, _rb2d.velocity.y);
+        _playerStats.Rb2d.velocity = new Vector2((_playerStats.Crouched ? _playerStats.CrouchSpeed : _playerStats.Speed) * hor, _playerStats.Rb2d.velocity.y);
 
         //Stops if the player stops pressing stuff
         if(Mathf.Abs(hor) < 0.1f)
-            _rb2d.velocity = new Vector2(0, _rb2d.velocity.y);
+            _playerStats.Rb2d.velocity = new Vector2(0, _playerStats.Rb2d.velocity.y);
 
         //Handles Jumping
-        if(Input.GetButtonDown("Jump") && _grounded)
-            _rb2d.velocity = new Vector2(_rb2d.velocity.x, JumpForce);
+        if(Input.GetButtonDown("Jump") && _playerStats.Grounded)
+            _playerStats.Rb2d.velocity = new Vector2(_playerStats.Rb2d.velocity.x, _playerStats.JumpForce);
     }
 
     //Plays the Animations
     private void PlayAnimations() {
-        _anim.SetFloat("Speed", Mathf.Abs(_rb2d.velocity.x));
-        _anim.SetBool("Grounded", _grounded);
-        _anim.SetBool("Crouch", _crouched);
+        _playerStats.Anim.SetFloat("Speed", Mathf.Abs(_playerStats.Rb2d.velocity.x));
+        _playerStats.Anim.SetBool("Grounded", _playerStats.Grounded);
+        _playerStats.Anim.SetBool("Crouch", _playerStats.Crouched);
     }
 
     private bool CheckIfGrounded() {
-        return Physics2D.Raycast(transform.position, Vector2.down, RayCastLength, Layers);
+        return Physics2D.Raycast(transform.position, Vector2.down, _playerStats.RayCastLength, _playerStats.Layers);
     }
 }

@@ -15,7 +15,7 @@ public class GunController : MonoBehaviour {
 
     //Variables
     private float HeightOffset = 0.4f;
-    private const float Radius = 0.5f;
+    private float Radius = 0.5f;
 
     private bool _canMove = true;
     private bool _isRunning;
