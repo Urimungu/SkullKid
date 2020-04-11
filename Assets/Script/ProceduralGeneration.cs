@@ -56,12 +56,14 @@ public class ProceduralGeneration : MonoBehaviour
         roomCount = Random.Range(RoomCountMin, RoomCountMax);
         roomCountInitial = roomCount;
 
-        //Runs for each room
-        //Creates Room
+        //Start Up
         int width = Random.Range(RoomWidthMin + 2, RoomWidthMax + 2);
         int height = Random.Range(RoomHeightMin + 2, RoomHeightMax + 2);
         Vector2 startPos = GetPosition(StartLocation);
         SpawnRoom(startPos, new Vector2(width, height), new Vector2(0, 0));
+
+        //Places the Player
+        //GameManager.Manager.SpawnPlayer((startPos + new Vector2(1,1)) * GridSize);
     }
 
     //Creates the room

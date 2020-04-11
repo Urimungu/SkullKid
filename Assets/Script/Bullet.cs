@@ -2,30 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
-{
-    //Stats
-    private float _speed;
-    private float _damage;
-    private float _lifeTime;
-    private float _gravity;
+public class Bullet : MonoBehaviour{
+    //References
+    private Rigidbody2D _rb2d;
+    private CharacterData _data;
+    private GameObject _shooter;    //The entity that shot the bullet
 
     //Variables
     private bool _isRunning;
-    private bool _hurtPlayer;
-
-    //References
-    private Rigidbody2D _rb2d;
 
     //Sets all of the values
-    public void SpawnBullet(float speed, float damage, float lifeTime, float gravity, bool hurtPlayer = false) {
-        //Sets the Values
-        _speed = speed;
-        _damage = damage;
-        _lifeTime = lifeTime;
-        _gravity = gravity;
-        _hurtPlayer = hurtPlayer;
+    public void SpawnBullet(GameObject shooter, CharacterData data) {
 
+        //Sets the references
+        _data = data;
+        _shooter = shooter;
         _rb2d = GetComponent<Rigidbody2D>();
 
         if(!_isRunning) {
@@ -33,23 +24,19 @@ public class Bullet : MonoBehaviour
             StartCoroutine(LifeTime());
         }
 
-        Movement();
+        //Moves the bullet forward
+        _rb2d.velocity = (transform.right * _data.ProjectileSpeed) + (Vector3.down * _data.ProjectileGravity);
     }
 
     //Destroys after specific amount of time
     IEnumerator LifeTime() {
-        yield return new WaitForSeconds(_lifeTime);
+        yield return new WaitForSeconds(_data.ProjectileLifeTime);
         Destroy(gameObject);
-    }
-
-    //Moves the bullet forward
-    private void Movement() {
-        _rb2d.velocity = (transform.right * _speed) + (Vector3.down * _gravity);
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
         //Hits the Player
-        if(other.CompareTag("Player") && _hurtPlayer) {
+        if(other.CompareTag("Player") && other != _shooter) {
             //Deals damage to the Player
             Destroy(gameObject);
             return;
