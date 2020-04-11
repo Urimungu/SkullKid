@@ -17,8 +17,14 @@ public class ProceduralGeneration : MonoBehaviour
     public int HallLengthMin;
     public int HallLengthMax;
 
+    public int HallHeightMin;
+    public int HallHeightMax;
+
     public int HatchLengthMin;
     public int HatchLengthMax;
+
+    public int HatchWidthMin;
+    public int HatchWidthMax;
 
     public int BoundsHorizontal;
     public int BoundsVertical;
@@ -149,7 +155,7 @@ public class ProceduralGeneration : MonoBehaviour
     }
 
     public void HallWay(Vector2 start, int pos, Transform parent) {
-        Vector2 dimensions = new Vector2(Random.Range(HallLengthMin, HallLengthMax),4);
+        Vector2 dimensions = new Vector2(Random.Range(HallLengthMin, HallLengthMax),Random.Range(HallHeightMin, HallHeightMax));
 
         for(int y = 0; y < dimensions.y; y++) {
             for(int x = 0; x < dimensions.x; x++) {
@@ -187,7 +193,7 @@ public class ProceduralGeneration : MonoBehaviour
     }
 
     public void Hatch(Vector2 start, int pos, Transform parent) {
-        Vector2 dimensions = new Vector2(4, Random.Range(HatchLengthMin, HatchLengthMax));
+        Vector2 dimensions = new Vector2(Random.Range(HatchWidthMin, HatchWidthMax), Random.Range(HatchLengthMin, HatchLengthMax));
 
         for(int y = 0; y < dimensions.y; y++) {
             for(int x = 0; x < dimensions.x; x++) {
