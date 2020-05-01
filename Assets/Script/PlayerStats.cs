@@ -8,6 +8,7 @@ public class PlayerStats : MonoBehaviour
     public float Speed = 5;
     public float CrouchSpeed = 2;
     public float JumpForce = 5;
+    public int JumpTimes = 1;
     public float RayCastLength = 0.3f;
     public float CeilingLength = 0.5f;
 

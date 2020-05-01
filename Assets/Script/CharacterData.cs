@@ -20,6 +20,7 @@ public class CharacterData : MonoBehaviour {
     public float Speed;
     public float CrouchSpeed;
     public float JumpForce;
+    public int JumpTimes;
     public bool Crouched;
 
     [Header("Ground Check")]

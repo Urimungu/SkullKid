@@ -6,27 +6,30 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private PlayerStats _playerStats;
+    private int _jumpCounter;
 
-    private void Awake()
-    {
+    private void Awake(){
+        //Gets and Sets all the references
         _playerStats = GetComponent<PlayerStats>();
         _playerStats.Rb2d = GetComponent<Rigidbody2D>();
         _playerStats.Anim = transform.GetChild(0).GetComponent<Animator>();
     }
 
     private void Update() {
+        //Moves the player if they are able to move
         if (_playerStats.CanMove) {
             var horizontal = Input.GetAxisRaw("Horizontal");
             var vertical = Input.GetAxisRaw("Vertical");
             Movement(horizontal, vertical);
         }
 
+        //Sets grounded and plays animations
         _playerStats.Grounded = CheckIfGrounded();
         PlayAnimations();
     }
 
+    //Handles movement
     private void Movement(float hor, float ver) {
-
         //Handles Crouching and adjusting speed
         Vector2 center = (Vector2)transform.position + new Vector2(0, (GetComponent<CircleCollider2D>().radius)) + GetComponent<CircleCollider2D>().offset;
         bool checkTop = Physics2D.Raycast(center, Vector2.up, _playerStats.CeilingLength, _playerStats.Layers);
@@ -44,8 +47,9 @@ public class PlayerController : MonoBehaviour
             _playerStats.Rb2d.velocity = new Vector2(0, _playerStats.Rb2d.velocity.y);
 
         //Handles Jumping
-        if(Input.GetButtonDown("Jump") && _playerStats.Grounded)
+        if(Input.GetButtonDown("Jump") && _playerStats.JumpTimes > _jumpCounter)
             _playerStats.Rb2d.velocity = new Vector2(_playerStats.Rb2d.velocity.x, _playerStats.JumpForce);
+        if(_playerStats.Grounded) _jumpCounter = 0;
     }
 
     //Plays the Animations
@@ -55,6 +59,7 @@ public class PlayerController : MonoBehaviour
         _playerStats.Anim.SetBool("Crouch", _playerStats.Crouched);
     }
 
+    //Checks to see if it's grounded or not
     private bool CheckIfGrounded() {
         return Physics2D.Raycast(transform.position, Vector2.down, _playerStats.RayCastLength, _playerStats.Layers);
     }

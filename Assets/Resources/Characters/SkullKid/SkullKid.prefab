@@ -123,6 +123,7 @@ MonoBehaviour:
   Speed: 5
   CrouchSpeed: 2
   JumpForce: 6.5
+  JumpTimes: 1
   Crouched: 0
   GroundRayLength: 0.3
   CeilingLength: 0.3
@@ -131,6 +132,7 @@ MonoBehaviour:
     m_Bits: 55
   ReloadSpeed: 0
   GunRadius: 0.5
+  Weapon: {fileID: 0}
   Projectile: {fileID: 0}
   GunLayers:
     serializedVersion: 2

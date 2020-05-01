@@ -5,23 +5,36 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour{
 
     //Options
-    private Transform target;
+    private Transform _target;
+
+    //Target Property
+    public Transform Target {
+        get {
+            //If the target isn't present
+            if(_target == null) {
+                //Gets the player from the Game Manager
+                if(GameManager.Manager.Player != null)
+                    _target = GameManager.Manager.Player.transform;
+                else
+                    _target = null;
+            }
+            return _target;
+        }
+    }
 
     private void Update() {
-        if(target != null) {
-            FollowPlayer();
-            return;
-        }
-
-        //Gets the Target if there is none
-        target = GameManager.Manager.GetPlayer().transform;
+        //Calls the function to move the player
+        FollowPlayer(Target);
     }
 
     //Follows the player
-    private void FollowPlayer() {
+    private void FollowPlayer(Transform target) {
+        //If there is no target then break the function
+        if(target == null) return;
+
         //Sets Refs
         Vector2 newPos = new Vector2();
-        var settings = GameManager.Manager.GetSettings();
+        var settings = GameManager.Manager.Settings;
 
         //Movement
         newPos.x = Mathf.Lerp(target.position.x, transform.position.x, settings.CameraFollowSpeed);

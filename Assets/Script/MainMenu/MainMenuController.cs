@@ -1,16 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class MainMenuController : MonoBehaviour
-{
+public class MainMenuController : MonoBehaviour{
 
     //References
     [SerializeField] private List<GameObject> Screens = new List<GameObject>();
     [SerializeField] private GameObject WarningMenu;
 
-    //Variables
+    //Private Variables
     private int _state;
 
     private void Awake() {
@@ -18,12 +18,12 @@ public class MainMenuController : MonoBehaviour
         SwitchState(0);
         CloseWarning();
     }
-
+    
+    //Controls the state machine
     private void FixedUpdate() {
         //Checks for starting the game
         if(_state == 0 && Input.anyKeyDown)
             SwitchState(1);
-        
     }
 
     //Switches the State
@@ -32,17 +32,22 @@ public class MainMenuController : MonoBehaviour
         _state = newState;
 
         //Activates the Sceens that need to be activated
-        for(int i = 0; i < Screens.Count; i++)
-            Screens[i].SetActive(i == _state);
+        for(int i = 0; i < Screens.Count; i++) Screens[i].SetActive(i == _state);
+    }
+
+    //Starts a new game
+    public void StartNewGame() {
+        GameManager.Manager.ChangeMusic("ThyArtIsMurder");
+        SceneManager.LoadScene("Lobby");
     }
 
     //Closes the game
     public void QuitGame() {
         Application.Quit();
-        UnityEditor.EditorApplication.isPlaying = false;
     }
 
-
+    //Extras
+    #region Popup Controller
     //Brings up a warning if something wrong happens
     public void OpenWarning(string header, string body, string optionOne = "Agree", string optionTwo = "") {
         //Turns everything on and Sets everything
@@ -73,4 +78,5 @@ public class MainMenuController : MonoBehaviour
         OpenWarning("Warning:", message, "Close");
         WarningMenu.transform.Find("OptionOne").GetComponent<Button>().onClick.AddListener(CloseWarning);
     }
+    #endregion
 }
